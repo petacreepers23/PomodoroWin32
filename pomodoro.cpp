@@ -209,10 +209,6 @@ void CreatePomodoroWindow(HINSTANCE hInstance, int nCmdShow)
 
     DefinePeriodicTimer(hwnd);
 
-    RECT rect;
-
-    GetWindowRect(hwnd,&rect);
-
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
