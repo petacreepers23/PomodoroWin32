@@ -15,7 +15,7 @@ int l_seconds_left = 0;
 void CalculateNewTimerText() {
     int minutes = l_seconds_left / 60;
     int seconds = l_seconds_left % 60;
-    g_texto = std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+    g_texto = (minutes < 10 ? "0" : "") + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
 }
 
 void DoCountdownAndUpdateText(HWND hwnd, UINT, UINT_PTR, DWORD)
