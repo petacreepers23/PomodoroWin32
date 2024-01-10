@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <string>
 
+const char c_windowsClassName[] = "pomodoroClass";
+
 std::string g_texto;
 UINT_PTR g_timerId;
 HFONT g_hfont;
@@ -154,7 +156,7 @@ void RegisterPomodoroClass (HINSTANCE hInstance)
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.lpszMenuName  = NULL;
-    wc.lpszClassName = "pomodoroClass";
+    wc.lpszClassName = c_windowsClassName;
     wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
 
     if(!RegisterClassEx(&wc))
@@ -185,7 +187,7 @@ void CreatePomodoroWindow(HINSTANCE hInstance, int nCmdShow)
 
     hwnd = CreateWindowEx(
         WS_EX_CLIENTEDGE,
-        g_szClassName,
+        c_windowsClassName,
         "Pomodoro",
         WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME,
         CW_USEDEFAULT, CW_USEDEFAULT, 625, 400,
