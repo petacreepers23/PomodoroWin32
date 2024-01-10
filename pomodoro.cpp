@@ -1,14 +1,12 @@
 #include <windows.h>
 #include <string>
 
-const char g_szClassName[] = "pomodoroClass";
 std::string g_texto;
 UINT_PTR g_timerId;
 HFONT g_hfont;
 
 enum botones {BTN_Null, BTN_Focus, BTN_Short, BTN_Long, BTN_StartStop, BTN_NullEnd};
 
-//l_ stands for logic
 bool l_timer_running = false;
 int l_seconds_left = 0;
 
@@ -31,15 +29,12 @@ void DoCountdownAndUpdateText(HWND hwnd, UINT, UINT_PTR, DWORD)
     {
         l_seconds_left--;
     }
-    else 
-    {
-        Beep(440,2000);
-    }
 
     CalculateNewTimerText();
 
     if (l_seconds_left == 0) {
         l_timer_running = false;
+	Beep(440,2000);
     }
 }
 
@@ -159,7 +154,7 @@ void RegisterPomodoroClass (HINSTANCE hInstance)
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.lpszMenuName  = NULL;
-    wc.lpszClassName = g_szClassName;
+    wc.lpszClassName = "pomodoroClass";
     wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
 
     if(!RegisterClassEx(&wc))
