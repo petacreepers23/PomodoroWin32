@@ -3,6 +3,7 @@
 
 // Constants
 const char c_windowsClassName[] = "pomodoroClass";
+const char c_fontName[] = "Broadway";
 const COLORREF c_uninitializedBg = RGB(255,255,255);
 const COLORREF c_focusBg = RGB(255, 160, 160);
 const COLORREF c_shortBreakBg = RGB(160, 255, 160);
@@ -97,6 +98,21 @@ void CreateMenuButtons(HWND hwnd)
 		             hwnd, (HMENU) BTN_StartStop, NULL, NULL);  
 }
 
+void HandleStateButtonPress (HWND hwnd, COLORREF newBg, int newTime) 
+{
+    g_timer_running = false;
+
+    g_seconds_left = newTime;
+
+    g_text_background = newBg;
+
+    HBRUSH brush;
+
+    brush = CreateSolidBrush(newBg);
+
+    SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+}
+
 void HandleMenuPress (HWND hwnd, int wParam)
 {
     if (wParam > BTN_Null && wParam < BTN_NullEnd)
@@ -104,29 +120,16 @@ void HandleMenuPress (HWND hwnd, int wParam)
         InvalidateRect(hwnd, NULL, TRUE);
     }
 
-    HBRUSH brush;
     switch(wParam)
     {
         case BTN_Focus:
-            g_timer_running = false;
-            g_seconds_left = 1500;
-            g_text_background = c_focusBg;
-            brush = CreateSolidBrush(c_focusBg);
-            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+            HandleStateButtonPress(hwnd, c_focusBg, 1500);
             break;
         case BTN_Short:
-            g_timer_running = false;
-            g_seconds_left = 300;
-            g_text_background = c_shortBreakBg;
-            brush = CreateSolidBrush(c_shortBreakBg);
-            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+            HandleStateButtonPress(hwnd, c_shortBreakBg, 300);
             break;
         case BTN_Long:
-            g_timer_running = false;
-            g_seconds_left = 900;
-            g_text_background = c_longBreakBg;
-            brush = CreateSolidBrush(c_longBreakBg);
-            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+            HandleStateButtonPress(hwnd, c_longBreakBg, 900);
             break;
         case BTN_StartStop:
             g_timer_running = !g_timer_running;
@@ -134,7 +137,6 @@ void HandleMenuPress (HWND hwnd, int wParam)
         default:
             break;
     }
-
 }
 
 //Window Procedure
@@ -187,7 +189,6 @@ void RegisterPomodoroClass (HINSTANCE hInstance)
             MB_ICONEXCLAMATION | MB_OK);
         exit(-1);
     }
-
 }
 
 void DefinePeriodicTimer(HWND hwnd)
@@ -250,7 +251,7 @@ void DefinePomodoroFont()
     memset(&logFont, 0, sizeof(logFont));
     logFont.lfHeight = -72; // see PS
     logFont.lfWeight = FW_BOLD;
-    strcpy(logFont.lfFaceName, "Broadway");
+    strcpy(logFont.lfFaceName, c_fontName);
     g_hfont = CreateFontIndirect(&logFont);
     g_text_background = c_uninitializedBg;
 }
