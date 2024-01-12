@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "MinGW",
+            "compilerArgs": [
+                "-lgdi32"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "C:\\ProgramData\\chocolatey\\bin\\g++.exe",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17"
+        }
+    ],
+    "version": 4
+}
