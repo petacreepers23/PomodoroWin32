@@ -11,8 +11,10 @@ const COLORREF c_longBreakBg = RGB(160, 160, 255);
 
 // Globals
 UINT_PTR g_timer_id;
-HFONT g_hfont;
 COLORREF g_text_background;
+HFONT g_chrono_font;
+HFONT g_status_font; // In the future this 2 vars will be calculated from a status one
+std::string g_status_text = "Push a status button to start!";
 bool g_timer_running = false;
 int g_seconds_left = 0;
 
@@ -57,20 +59,21 @@ void DoCountdownAndUpdateText(HWND hwnd, UINT, UINT_PTR, DWORD)
 void UpdateText(HWND hwnd, const char* texto) 
 {
     RECT rc;
+
     if (!GetUpdateRect(hwnd, &rc, FALSE))
     {
           return;
     }
 
     PAINTSTRUCT ps;
-
     BeginPaint(hwnd, &ps);
-
-    SelectObject(ps.hdc, g_hfont);
-
+    
+    SelectObject(ps.hdc, g_chrono_font);
     SetBkColor(ps.hdc, g_text_background); 
-
     DrawText(ps.hdc, texto, -1, &rc, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+
+    SelectObject(ps.hdc, g_status_font);
+    DrawText(ps.hdc, g_status_text.c_str(), -1, &rc, DT_LEFT|DT_BOTTOM|DT_SINGLELINE);
 
     EndPaint(hwnd, &ps);
 }
@@ -92,25 +95,23 @@ void CreateMenuButtons(HWND hwnd)
 		             450, 50, 100, 50,        
 		             hwnd, (HMENU) BTN_Long, NULL, NULL);  
     
-    CreateWindow(TEXT("button"), TEXT("Start/Stop"),    
+    CreateWindow(TEXT("button"), TEXT("Stop / Go"),    
 		             WS_VISIBLE | WS_CHILD ,
 		             250, 250, 100, 50,        
 		             hwnd, (HMENU) BTN_StartStop, NULL, NULL);  
 }
 
-void HandleStateButtonPress (HWND hwnd, COLORREF newBg, int newTime) 
+void HandleStateButtonPress (HWND hwnd,std::string newStatus, COLORREF newBg, int newTime) 
 {
-    g_timer_running = false;
-
+    g_timer_running = true;
     g_seconds_left = newTime;
-
     g_text_background = newBg;
 
     HBRUSH brush;
 
     brush = CreateSolidBrush(newBg);
-
     SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+    g_status_text = newStatus;
 }
 
 void HandleMenuPress (HWND hwnd, int wParam)
@@ -123,13 +124,13 @@ void HandleMenuPress (HWND hwnd, int wParam)
     switch(wParam)
     {
         case BTN_Focus:
-            HandleStateButtonPress(hwnd, c_focusBg, 1500);
+            HandleStateButtonPress(hwnd, "Stay focused!", c_focusBg, 1500);
             break;
         case BTN_Short:
-            HandleStateButtonPress(hwnd, c_shortBreakBg, 300);
+            HandleStateButtonPress(hwnd, "Go away from screen!", c_shortBreakBg, 300);
             break;
         case BTN_Long:
-            HandleStateButtonPress(hwnd, c_longBreakBg, 900);
+            HandleStateButtonPress(hwnd, "Relax a bit", c_longBreakBg, 900);
             break;
         case BTN_StartStop:
             g_timer_running = !g_timer_running;
@@ -252,7 +253,12 @@ void DefinePomodoroFont()
     logFont.lfHeight = -72; // see PS
     logFont.lfWeight = FW_BOLD;
     strcpy(logFont.lfFaceName, c_fontName);
-    g_hfont = CreateFontIndirect(&logFont);
+    g_chrono_font = CreateFontIndirect(&logFont);
+
+    logFont.lfHeight = -14;
+    logFont.lfWeight = FW_NORMAL;
+    g_status_font = CreateFontIndirect(&logFont);
+
     g_text_background = c_uninitializedBg;
 }
 
