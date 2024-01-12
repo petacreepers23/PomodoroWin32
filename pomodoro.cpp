@@ -1,17 +1,27 @@
 #include <windows.h>
 #include <string>
 
+// Constants
 const char c_windowsClassName[] = "pomodoroClass";
+const COLORREF c_uninitializedBg = RGB(255,255,255);
+const COLORREF c_focusBg = RGB(255, 160, 160);
+const COLORREF c_shortBreakBg = RGB(160, 255, 160);
+const COLORREF c_longBreakBg = RGB(160, 160, 255);
 
+// Globals
 UINT_PTR g_timer_id;
 HFONT g_hfont;
+COLORREF g_text_background;
 bool g_timer_running = false;
 int g_seconds_left = 0;
 
+// Enums
 enum botones 
 {
     BTN_Null, BTN_Focus, BTN_Short, BTN_Long, BTN_StartStop, BTN_NullEnd
 };
+
+// Functions
 
 std::string CalculateNewTimerText() 
 {
@@ -47,20 +57,19 @@ void UpdateText(HWND hwnd, const char* texto)
 {
     RECT rc;
     if (!GetUpdateRect(hwnd, &rc, FALSE))
+    {
           return;
+    }
+
     PAINTSTRUCT ps;
+
     BeginPaint(hwnd, &ps);
 
-    // set text color and font
-    //COLORREF oldTextColor = SetTextColor(_hdc, textColor);
-    HFONT oldHFont = (HFONT)SelectObject(ps.hdc, g_hfont);
+    SelectObject(ps.hdc, g_hfont);
 
-    //TextOut(_hdc, _Xpos, _Ypos, _szMessage, strlen(_szMessage));
+    SetBkColor(ps.hdc, g_text_background); 
+
     DrawText(ps.hdc, texto, -1, &rc, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
-
-    // restore text colorand font
-    //SetTextColor(_hdc, oldTextColor);
-    SelectObject(ps.hdc, oldHFont); 
 
     EndPaint(hwnd, &ps);
 }
@@ -95,19 +104,29 @@ void HandleMenuPress (HWND hwnd, int wParam)
         InvalidateRect(hwnd, NULL, TRUE);
     }
 
+    HBRUSH brush;
     switch(wParam)
     {
         case BTN_Focus:
             g_timer_running = false;
             g_seconds_left = 1500;
+            g_text_background = c_focusBg;
+            brush = CreateSolidBrush(c_focusBg);
+            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
             break;
         case BTN_Short:
             g_timer_running = false;
             g_seconds_left = 300;
+            g_text_background = c_shortBreakBg;
+            brush = CreateSolidBrush(c_shortBreakBg);
+            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
             break;
         case BTN_Long:
             g_timer_running = false;
             g_seconds_left = 900;
+            g_text_background = c_longBreakBg;
+            brush = CreateSolidBrush(c_longBreakBg);
+            SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
             break;
         case BTN_StartStop:
             g_timer_running = !g_timer_running;
@@ -233,7 +252,10 @@ void DefinePomodoroFont()
     logFont.lfWeight = FW_BOLD;
     strcpy(logFont.lfFaceName, "Broadway");
     g_hfont = CreateFontIndirect(&logFont);
+    g_text_background = c_uninitializedBg;
 }
+
+// Main
 
 // Compile with -lgdi32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
